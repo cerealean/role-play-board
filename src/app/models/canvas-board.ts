@@ -1,10 +1,8 @@
 import { CanvasLayers } from '../enums/canvas-layers';
+import { CanvasSettings } from './canvas-settings';
 
 export class CanvasBoard {
-    public background: HTMLCanvasElement;
-    public grid: HTMLCanvasElement;
-    public characters: HTMLCanvasElement;
-    public clickLayer: HTMLCanvasElement;
+    public canvasSettings = new CanvasSettings();
 
     private canvasElements = new Map<CanvasLayers, HTMLCanvasElement>();
 
@@ -22,23 +20,6 @@ export class CanvasBoard {
     }
 
     public setDiminsions(width: number, height: number) {
-        if (this.background) {
-            this.background.width = width;
-            this.background.height = height;
-        }
-        if (this.grid) {
-            this.grid.width = width;
-            this.grid.height = height;
-        }
-        if (this.characters) {
-            this.characters.width = width;
-            this.characters.height = height;
-        }
-        if (this.clickLayer) {
-            this.clickLayer.width = width;
-            this.clickLayer.height = height;
-        }
-
         this.canvasElements.forEach(canvas => {
             canvas.width = width;
             canvas.height = height;

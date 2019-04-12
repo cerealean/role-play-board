@@ -28,40 +28,44 @@
           <!-- Height Input -->
           <div class="field is-horizontal">
             <div class="field-label is-normal">
-              <label class="label" for="squares-width">Height:</label>
+              <label class="label" for="squares-height">Height:</label>
             </div>
             <div class="field-body">
               <div class="field">
                 <div class="control is-expanded">
-                  <input class="input" type="number" max="20" min="1" id="squares-width" value="10" #heightInput />
+                  <input class="input" type="number" max="20" min="1" id="squares-height" value="10" #heightInput />
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Submit -->
-        <div class="field is-horizontal">
-          <div class="field-label">
-            <!-- Left empty for spacing -->
-          </div>
-          <div class="field-body">
-            <div class="field">
-              <div class="control">
-                <button class="button is-info" (click)="generate(widthInput.value, heightInput.value)">
-                  Generate
-                </button>
+          <!-- Submit -->
+          <div class="field is-horizontal">
+            <div class="field-label">
+              <!-- Left empty for spacing -->
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <button class="button is-info" (click)="generate(widthInput.value, heightInput.value)">
+                    Generate
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+
+          <hr />
+
+          <!-- Background Color -->
+          <background-color-selector></background-color-selector>
+
+          <hr />
+
+          <div style="background-color: blue; width: 5em; height: 5em;" draggable="true" (dragstart)="onDrag($event)"
+            id="blue-box"></div>
+
         </div>
-
-        <br />
-        <hr />
-        <br />
-
-        <div style="background-color: blue; width: 5em; height: 5em;" draggable="true" (drag)="onDrag(event)"></div>
-
       </div>
     </div>
   </div>

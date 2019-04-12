@@ -74,14 +74,20 @@ export class AppComponent implements OnInit {
 
   private onDragOverAllowDrop(event: DragEvent) {
     event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
   }
 
   public onDrag(event: DragEvent) {
-    event.dataTransfer.setData('text', (event.target as HTMLElement).id);
+    const dragData = (event.target as HTMLElement).id;
+    event.dataTransfer.setData('text/plain', dragData);
+    event.dataTransfer.dropEffect = 'copy';
+    console.log('Starting drag with data', dragData);
   }
 
   private onDrop(event: DragEvent) {
-    const data = event.dataTransfer.getData('text');
+    event.preventDefault();
+    const data = event.dataTransfer.getData('text/plain');
+    console.log('Got drag data', data);
   }
 
   private generateGridSquares(widthSquares: number, heightSquares: number) {
