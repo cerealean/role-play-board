@@ -1,21 +1,23 @@
+import { CanvasLayers } from '../enums/canvas-layers';
+
 export class CanvasBoard {
     public background: HTMLCanvasElement;
     public grid: HTMLCanvasElement;
     public characters: HTMLCanvasElement;
     public clickLayer: HTMLCanvasElement;
 
-    private canvasElements = new Map<string, HTMLCanvasElement>();
+    private canvasElements = new Map<CanvasLayers, HTMLCanvasElement>();
 
-    public addCanvas(key: string, canvas: HTMLCanvasElement) {
+    public addCanvas(key: CanvasLayers, canvas: HTMLCanvasElement) {
         this.canvasElements.set(key, canvas);
     }
 
-    public deleteCanvas(key: string) {
+    public deleteCanvas(key: CanvasLayers) {
         this.getCanvas(key).remove();
         this.canvasElements.delete(key);
     }
 
-    public getCanvas(key: string): HTMLCanvasElement {
+    public getCanvas(key: CanvasLayers): HTMLCanvasElement {
         return this.canvasElements.has(key) ? this.canvasElements.get(key) : null;
     }
 

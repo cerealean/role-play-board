@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { GridSquare } from './models/grid-square';
 import { Coordinate } from './models/coordinate';
 import { CanvasBoard } from './models/canvas-board';
+import { CanvasLayers } from './enums/canvas-layers';
 
 @Component({
   selector: 'app-root',
@@ -17,25 +18,24 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.canvasBoard = new CanvasBoard();
-    const gridLayer = this.createCanvasElement('role-play-grid');
-    const backgroundLayer = this.createCanvasElement('background');
-    const charLayer = this.createCanvasElement('characters');
-    const clickLayer = this.createCanvasElement('click');
-    this.setZIndex(gridLayer, 1);
-    this.setZIndex(backgroundLayer, 2);
-    this.setZIndex(charLayer, 3);
-    this.setZIndex(clickLayer, 4);
-    this.canvasBoard.grid = gridLayer;
-    this.canvasBoard.characters = charLayer;
-    this.canvasBoard.background = backgroundLayer;
-    this.canvasBoard.clickLayer = clickLayer;
-    clickLayer.onclick = (event) => {
+    const canvasContainer = document.getElementById('canvas-container');
+    for (const layer of Object.values(CanvasLayers)) {
+      const element = this.createCanvasElement(layer);
+      this.canvasBoard.addCanvas(layer, element);
+      this.setZIndex(element, layer);
+      canvasContainer.append(element);
+    }
+    const interactionLayer = this.canvasBoard
+      .getCanvas(CanvasLayers.Interaction);
+    interactionLayer.onclick = (event) => {
       this.gridClick(event);
     };
-    document.getElementById('canvas-container').append(this.canvasBoard.grid);
-    document.getElementById('canvas-container').append(this.canvasBoard.background);
-    document.getElementById('canvas-container').append(this.canvasBoard.characters);
-    document.getElementById('canvas-container').append(this.canvasBoard.clickLayer);
+    interactionLayer.ondragover = (event) => {
+      this.onDragOverAllowDrop(event);
+    };
+    interactionLayer.ondrop = (event) => {
+      this.onDrop(event);
+    };
   }
 
   private createCanvasElement(identifier: string): HTMLCanvasElement {
@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
   }
 
   public generate(width: number, height: number) {
-    const gridCanvas = this.canvasBoard.grid;
+    const gridCanvas = this.canvasBoard.getCanvas(CanvasLayers.Grid);
     const widthInPx = width * this.step;
     const heightInPx = height * this.step;
     const widthPxRemoveRemainder = widthInPx - (widthInPx % this.step);
@@ -58,8 +58,7 @@ export class AppComponent implements OnInit {
   }
 
   public gridClick(event: MouseEvent) {
-    console.log(this, event);
-    const canvas = this.canvasBoard.grid;
+    const canvas = this.canvasBoard.getCanvas(CanvasLayers.Grid);
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -73,8 +72,19 @@ export class AppComponent implements OnInit {
     }
   }
 
+  private onDragOverAllowDrop(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  public onDrag(event: DragEvent) {
+    event.dataTransfer.setData('text', (event.target as HTMLElement).id);
+  }
+
+  private onDrop(event: DragEvent) {
+    const data = event.dataTransfer.getData('text');
+  }
+
   private generateGridSquares(widthSquares: number, heightSquares: number) {
-    console.log(widthSquares, heightSquares);
     this.squares = [];
     for (let windex = 0; windex < widthSquares; windex++) {
       for (let yindex = 0; yindex < heightSquares; yindex++) {
