@@ -1,0 +1,6 @@
+.color-preview {
+    text-align: center;
+    &:after {
+        mix-blend-mode: difference;
+    }
+}

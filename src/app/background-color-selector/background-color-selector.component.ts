@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -7,10 +7,12 @@ import { Component, OnInit, OnChanges, SimpleChanges } from '@angular/core';
   styleUrls: ['./background-color-selector.component.scss']
 })
 export class BackgroundColorSelectorComponent implements OnInit, OnChanges {
-  public red = 0;
-  public green = 0;
-  public blue = 0;
+  public red = 250;
+  public green = 249;
+  public blue = 249;
   public alpha = 1;
+
+  @Output() rgbaColorOutput = new EventEmitter<string>();
 
   private previewElement: HTMLElement;
 
@@ -29,7 +31,9 @@ export class BackgroundColorSelectorComponent implements OnInit, OnChanges {
   }
 
   public setPreviewColor() {
-    this.previewElement.style.backgroundColor = `rgba(${this.red},${this.green},${this.blue},${this.alpha})`;
+    const rgbaColorString = `rgba(${this.red},${this.green},${this.blue},${this.alpha})`;
+    this.previewElement.style.backgroundColor = rgbaColorString;
+    this.rgbaColorOutput.emit(rgbaColorString);
   }
 
 }

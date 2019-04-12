@@ -36,14 +36,11 @@ export class AppComponent implements OnInit {
     interactionLayer.ondrop = (event) => {
       this.onDrop(event);
     };
-  }
 
-  private createCanvasElement(identifier: string): HTMLCanvasElement {
-    const element = document.createElement('canvas');
-    element.id = identifier;
-    element.classList.add('canvas');
-
-    return element;
+    (window as any).sunshine = () => {
+      console.log(this.canvasBoard);
+    };
+    this.generate(10, 10);
   }
 
   public generate(width: number, height: number) {
@@ -54,6 +51,7 @@ export class AppComponent implements OnInit {
     const heightPxRemoveRemainder = heightInPx - (heightInPx % this.step);
     this.canvasBoard.setDiminsions(widthPxRemoveRemainder, heightPxRemoveRemainder);
     this.generateGridSquares(Number(width), Number(height));
+    this.canvasBoard.getCanvas(CanvasLayers.Background).fillWithColor(this.canvasBoard.canvasSettings.backgroundColor);
     this.drawGrid(gridCanvas.width, gridCanvas.height, this.step, gridCanvas.getContext('2d'));
   }
 
@@ -84,10 +82,23 @@ export class AppComponent implements OnInit {
     console.log('Starting drag with data', dragData);
   }
 
-  private onDrop(event: DragEvent) {
+  public onDrop(event: DragEvent) {
     event.preventDefault();
     const data = event.dataTransfer.getData('text/plain');
     console.log('Got drag data', data);
+  }
+
+  public setBackgroundColor(color: string) {
+    this.canvasBoard.canvasSettings.backgroundColor = color;
+    this.canvasBoard.getCanvas(CanvasLayers.Background).fillWithColor(color);
+  }
+
+  private createCanvasElement(identifier: string): HTMLCanvasElement {
+    const element = document.createElement('canvas');
+    element.id = identifier;
+    element.classList.add('canvas');
+
+    return element;
   }
 
   private generateGridSquares(widthSquares: number, heightSquares: number) {
