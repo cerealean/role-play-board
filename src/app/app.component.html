@@ -35,46 +35,26 @@
               </div>
             </div>
           </div>
-
-          <!-- Size Dropdown -->
-          <div class="field is-horizontal">
-            <div class="field-label is-normal">
-              <label class="label" for="squares-width">Size:</label>
-            </div>
-            <div class="field-body">
-              <div class="field">
-                <div class="control is-expanded">
-                  <div class="select">
-                    <select #sizeInput>
-                      <option value="30">Small</option>
-                      <option value="50" selected>Medium</option>
-                      <option value="75">Large</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit -->
-          <div class="field is-horizontal">
-            <div class="field-label">
-              <!-- Left empty for spacing -->
-            </div>
-            <div class="field-body">
-              <div class="field">
-                <div class="control">
-                  <button class="button is-info"
-                    (click)="generate(widthInput.value, heightInput.value, sizeInput.value)">
-                    Generate
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
+
+        <!-- Submit -->
+        <div class="field is-horizontal">
+          <div class="field-label">
+            <!-- Left empty for spacing -->
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control">
+                <button class="button is-info" (click)="generate(widthInput.value, heightInput.value)">
+                  Generate
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
+</div>
 </div>

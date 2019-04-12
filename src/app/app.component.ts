@@ -10,7 +10,7 @@ import { Coordinate } from './models/coordinate';
 export class AppComponent implements OnInit {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
-  private step: number;
+  private step = 50;
   private gridLineThicknessInPx = 3;
   private halfGridLineThicknessInPx = this.gridLineThicknessInPx / 2;
   private squares: GridSquare[] = [];
@@ -20,8 +20,7 @@ export class AppComponent implements OnInit {
     this.context = this.canvas.getContext('2d');
   }
 
-  public generate(width: number, height: number, squareSize: number) {
-    this.step = Number(squareSize);
+  public generate(width: number, height: number) {
     const widthInPx = width * this.step;
     const heightInPx = height * this.step;
     this.canvas.width = widthInPx - (widthInPx % this.step);
