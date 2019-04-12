@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { GridSquare } from './models/grid-square';
 import { Coordinate } from './models/coordinate';
+import { CanvasBoard } from './models/canvas-board';
 
 @Component({
   selector: 'app-root',
@@ -8,42 +9,72 @@ import { Coordinate } from './models/coordinate';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  private canvas: HTMLCanvasElement;
-  private context: CanvasRenderingContext2D;
   private step = 50;
+  private canvasBoard: CanvasBoard;
   private gridLineThicknessInPx = 3;
   private halfGridLineThicknessInPx = this.gridLineThicknessInPx / 2;
   private squares: GridSquare[] = [];
 
   ngOnInit() {
-    this.canvas = document.getElementById('role-play-grid') as HTMLCanvasElement;
-    this.context = this.canvas.getContext('2d');
+    this.canvasBoard = new CanvasBoard();
+    const gridLayer = this.createCanvasElement('role-play-grid');
+    const backgroundLayer = this.createCanvasElement('background');
+    const charLayer = this.createCanvasElement('characters');
+    const clickLayer = this.createCanvasElement('click');
+    this.setZIndex(gridLayer, 1);
+    this.setZIndex(backgroundLayer, 2);
+    this.setZIndex(charLayer, 3);
+    this.setZIndex(clickLayer, 4);
+    this.canvasBoard.grid = gridLayer;
+    this.canvasBoard.characters = charLayer;
+    this.canvasBoard.background = backgroundLayer;
+    this.canvasBoard.clickLayer = clickLayer;
+    clickLayer.onclick = (event) => {
+      this.gridClick(event);
+    };
+    document.getElementById('canvas-container').append(this.canvasBoard.grid);
+    document.getElementById('canvas-container').append(this.canvasBoard.background);
+    document.getElementById('canvas-container').append(this.canvasBoard.characters);
+    document.getElementById('canvas-container').append(this.canvasBoard.clickLayer);
+  }
+
+  private createCanvasElement(identifier: string): HTMLCanvasElement {
+    const element = document.createElement('canvas');
+    element.id = identifier;
+    element.classList.add('canvas');
+
+    return element;
   }
 
   public generate(width: number, height: number) {
+    const gridCanvas = this.canvasBoard.grid;
     const widthInPx = width * this.step;
     const heightInPx = height * this.step;
-    this.canvas.width = widthInPx - (widthInPx % this.step);
-    this.canvas.height = heightInPx - (heightInPx % this.step);
+    const widthPxRemoveRemainder = widthInPx - (widthInPx % this.step);
+    const heightPxRemoveRemainder = heightInPx - (heightInPx % this.step);
+    this.canvasBoard.setDiminsions(widthPxRemoveRemainder, heightPxRemoveRemainder);
     this.generateGridSquares(Number(width), Number(height));
-    this.drawGrid(this.canvas.width, this.canvas.height, this.step);
+    this.drawGrid(gridCanvas.width, gridCanvas.height, this.step, gridCanvas.getContext('2d'));
   }
 
   public gridClick(event: MouseEvent) {
-    const rect = this.canvas.getBoundingClientRect();
+    console.log(this, event);
+    const canvas = this.canvasBoard.grid;
+    const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
     const clickCoordinate = new Coordinate(x, y);
     const squareClicked = this.squares.find(s => s.isCoordinateWithinSquare(clickCoordinate));
     if (squareClicked) {
-      this.toggleSquare(squareClicked);
+      this.toggleSquare(squareClicked, canvas.getContext('2d'));
       squareClicked.isHighlighted = !squareClicked.isHighlighted;
       console.log('Square clicked was', squareClicked, 'at coordinate', clickCoordinate);
     }
   }
 
   private generateGridSquares(widthSquares: number, heightSquares: number) {
+    console.log(widthSquares, heightSquares);
     this.squares = [];
     for (let windex = 0; windex < widthSquares; windex++) {
       for (let yindex = 0; yindex < heightSquares; yindex++) {
@@ -63,28 +94,32 @@ export class AppComponent implements OnInit {
     }
   }
 
-  private toggleSquare(square: GridSquare) {
+  private setZIndex(canvas: HTMLCanvasElement, index: number) {
+    canvas.style.zIndex = index.toString();
+  }
+
+  private toggleSquare(square: GridSquare, canvasContext: CanvasRenderingContext2D) {
     if (square.isHighlighted) {
-      this.clearSquare(square);
+      this.clearSquare(square, canvasContext);
     } else {
-      this.paintSquare(square);
+      this.paintSquare(square, canvasContext);
     }
   }
 
-  private paintSquare(square: GridSquare) {
-    this.context.beginPath();
-    this.context.fillStyle = 'rgba(42,82,190,1)';
-    this.context.rect(
+  private paintSquare(square: GridSquare, canvasContext: CanvasRenderingContext2D) {
+    canvasContext.beginPath();
+    canvasContext.fillStyle = 'rgba(42,82,190,1)';
+    canvasContext.rect(
       square.topLeft.x + this.halfGridLineThicknessInPx,
       square.topLeft.y + this.halfGridLineThicknessInPx,
       square.getXLength() - this.gridLineThicknessInPx,
       square.getYLength() - this.gridLineThicknessInPx - this.halfGridLineThicknessInPx
     );
-    this.context.fill();
+    canvasContext.fill();
   }
 
-  private clearSquare(square: GridSquare) {
-    this.context.clearRect(
+  private clearSquare(square: GridSquare, canvasContext: CanvasRenderingContext2D) {
+    canvasContext.clearRect(
       square.topLeft.x + this.halfGridLineThicknessInPx,
       square.topLeft.y + this.halfGridLineThicknessInPx,
       square.getXLength() - this.gridLineThicknessInPx,
@@ -92,24 +127,24 @@ export class AppComponent implements OnInit {
     );
   }
 
-  private drawGrid(width: number, height: number, step: number) {
-    this.context.beginPath();
+  private drawGrid(width: number, height: number, step: number, canvasContext: CanvasRenderingContext2D) {
+    canvasContext.beginPath();
     for (let index = 0; index <= width; index += step) {
-      this.context.moveTo(index, 0);
-      this.context.lineTo(index, height);
+      canvasContext.moveTo(index, 0);
+      canvasContext.lineTo(index, height);
     }
-    this.context.strokeStyle = 'black';
-    this.context.lineWidth = 1;
-    this.context.stroke();
+    canvasContext.strokeStyle = 'black';
+    canvasContext.lineWidth = 1;
+    canvasContext.stroke();
 
-    this.context.beginPath();
+    canvasContext.beginPath();
     for (let secondIndex = 0; secondIndex <= height; secondIndex += step) {
-      this.context.moveTo(0, secondIndex);
-      this.context.lineTo(width, secondIndex);
+      canvasContext.moveTo(0, secondIndex);
+      canvasContext.lineTo(width, secondIndex);
     }
-    this.context.strokeStyle = 'black';
-    this.context.lineWidth = 1;
-    this.context.stroke();
+    canvasContext.strokeStyle = 'black';
+    canvasContext.lineWidth = 1;
+    canvasContext.stroke();
   }
 
 }
