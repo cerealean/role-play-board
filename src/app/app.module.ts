@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { BackgroundColorSelectorComponent } from './background-color-selector/background-color-selector.component';
+import { LayerSelectorComponent } from './layer-selector/layer-selector.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    BackgroundColorSelectorComponent
+    BackgroundColorSelectorComponent,
+    LayerSelectorComponent
   ],
   imports: [
     BrowserModule,

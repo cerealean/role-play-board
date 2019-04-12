@@ -1,0 +1,12 @@
+<div class="field has-text-centered">
+  <label class="label" for="layer-selector">Layer To Edit</label>
+  <div class="field">
+    <div class="control is-expanded">
+      <div class="select is-fullwidth">
+        <select id="layer-selector" (change)="onLayerChange($event)">
+          <option *ngFor="let layer of editableLayers" [value]="layer">{{ CanvasLayers[layer] }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>

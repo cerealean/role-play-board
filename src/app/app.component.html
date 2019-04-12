@@ -57,13 +57,24 @@
 
           <hr />
 
-          <!-- Background Color -->
           <background-color-selector (rgbaColorOutput)="setBackgroundColor($event)"></background-color-selector>
 
           <hr />
 
-          <div style="background-color: blue; width: 5em; height: 5em;" draggable="true" (dragstart)="onDrag($event)"
-            id="blue-box"></div>
+          <layer-selector (selectedLayer)="changeSelectedLayer($event)"></layer-selector>
+
+          <div class="notification">
+            <ul>
+              <li>Select the layer you want to edit</li>
+              <li>Drag and drop to place</li>
+              <li>Right-click to remove</li>
+            </ul>
+          </div>
+
+          <!-- <div style="background-color: blue; width: 5em; height: 5em;" draggable="true" (dragstart)="onDrag($event)"
+            id="blue-box"></div> -->
+          <img src="../assets/images/sprites/monsters/catwalkx2.gif" draggable="true" (dragstart)="onDrag($event)"
+            id="monster-cat" />
 
         </div>
       </div>

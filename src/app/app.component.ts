@@ -10,6 +10,7 @@ import { CanvasLayers } from './enums/canvas-layers';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  private selectedLayer: CanvasLayers;
   private step = 50;
   private canvasBoard: CanvasBoard;
   private gridLineThicknessInPx = 3;
@@ -29,6 +30,9 @@ export class AppComponent implements OnInit {
       .getCanvas(CanvasLayers.Interaction);
     interactionLayer.onclick = (event) => {
       this.gridClick(event);
+    };
+    interactionLayer.oncontextmenu = (event) => {
+      this.boardRightClick(event);
     };
     interactionLayer.ondragover = (event) => {
       this.onDragOverAllowDrop(event);
@@ -51,23 +55,41 @@ export class AppComponent implements OnInit {
     const heightPxRemoveRemainder = heightInPx - (heightInPx % this.step);
     this.canvasBoard.setDiminsions(widthPxRemoveRemainder, heightPxRemoveRemainder);
     this.generateGridSquares(Number(width), Number(height));
-    this.canvasBoard.getCanvas(CanvasLayers.Background).fillWithColor(this.canvasBoard.canvasSettings.backgroundColor);
     this.drawGrid(gridCanvas.width, gridCanvas.height, this.step, gridCanvas.getContext('2d'));
   }
 
-  public gridClick(event: MouseEvent) {
-    const canvas = this.canvasBoard.getCanvas(CanvasLayers.Grid);
+  public changeSelectedLayer(layer: CanvasLayers) {
+    this.selectedLayer = layer;
+    console.log('Selected layer is now', layer);
+  }
+
+  private gridClick(event: MouseEvent) {
+    const squareClicked = this.getSquareFromEventCoordinates(event);
+    if (squareClicked) {
+      const canvas = this.canvasBoard.getCanvas(CanvasLayers.Highlight);
+      this.toggleSquare(squareClicked, canvas.getContext('2d'));
+      squareClicked.isHighlighted = !squareClicked.isHighlighted;
+    }
+  }
+
+  private boardRightClick(event: MouseEvent) {
+    event.preventDefault();
+    const squareClicked = this.getSquareFromEventCoordinates(event);
+    if (squareClicked) {
+      const canvasToModify = this.canvasBoard.getCanvas(this.selectedLayer);
+      const context = canvasToModify.getContext('2d');
+      context.clearRect(squareClicked.topLeft.x, squareClicked.topLeft.y, squareClicked.getXLength(), squareClicked.getYLength());
+    }
+  }
+
+  private getSquareFromEventCoordinates(event: MouseEvent) {
+    const canvas = event.target as HTMLCanvasElement;
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
     const clickCoordinate = new Coordinate(x, y);
-    const squareClicked = this.squares.find(s => s.isCoordinateWithinSquare(clickCoordinate));
-    if (squareClicked) {
-      this.toggleSquare(squareClicked, canvas.getContext('2d'));
-      squareClicked.isHighlighted = !squareClicked.isHighlighted;
-      console.log('Square clicked was', squareClicked, 'at coordinate', clickCoordinate);
-    }
+    return this.squares.find(s => s.isCoordinateWithinSquare(clickCoordinate));
   }
 
   private onDragOverAllowDrop(event: DragEvent) {
@@ -79,13 +101,16 @@ export class AppComponent implements OnInit {
     const dragData = (event.target as HTMLElement).id;
     event.dataTransfer.setData('text/plain', dragData);
     event.dataTransfer.dropEffect = 'copy';
-    console.log('Starting drag with data', dragData);
   }
 
   public onDrop(event: DragEvent) {
     event.preventDefault();
+    const squareClicked = this.getSquareFromEventCoordinates(event);
     const data = event.dataTransfer.getData('text/plain');
-    console.log('Got drag data', data);
+    const image = new Image(this.step, this.step);
+    image.src = (document.getElementById(data) as HTMLImageElement).src;
+    const selectedContext = this.canvasBoard.getCanvas(this.selectedLayer).getContext('2d');
+    selectedContext.drawImage(image, squareClicked.topLeft.x, squareClicked.topLeft.y);
   }
 
   public setBackgroundColor(color: string) {

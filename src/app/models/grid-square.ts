@@ -1,7 +1,10 @@
 import { Coordinate } from './coordinate';
+import { CanvasLayers } from '../enums/canvas-layers';
 
 export class GridSquare {
     public isHighlighted: boolean;
+
+    private layerItems = new Map<CanvasLayers, any>();
 
     constructor(
         public topLeft: Coordinate,
@@ -21,6 +24,14 @@ export class GridSquare {
 
     public getYLength() {
         return Math.abs(this.topLeft.y - this.bottomLeft.y);
+    }
+
+    public addLayerImage(layer: CanvasLayers, image: HTMLImageElement) {
+        this.layerItems.set(layer, image);
+    }
+
+    public getLayerImage(layer: CanvasLayers): HTMLImageElement {
+        return this.layerItems.get(layer);
     }
 
 }
